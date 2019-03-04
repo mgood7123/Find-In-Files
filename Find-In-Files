@@ -1,0 +1,15 @@
+
+if (( $# >= 2 )); then
+    path=$1;
+    shift  1;
+else
+    path=.
+fi
+file=($(find "$path"))
+for i in ${file[@]}
+    do
+        cat -n $i 2>/dev/null | grep --color -q -i -e "$@" && 
+        printf -- "---------------START--------------- $i:\n" &&
+        cat -n $i 2>/dev/null | grep --color -i -e "$@" &&
+        printf -- "----------------END---------------- $i\n"
+done
