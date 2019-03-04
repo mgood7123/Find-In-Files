@@ -1,15 +1,21 @@
 
-if (( $# >= 2 )); then
-    path=$1;
-    shift  1;
-else
-    path=.
+shopt -s globstar
+if (( $# >= 2 ))
+    then
+        dir="$1"
+        shift 1
+        [[ -d "$dir" ]] && dir+=/
 fi
-file=($(find "$path"))
-for i in ${file[@]}
+paths=("${dir}"**)
+for i in "${paths[@]}"
     do
-        cat -n $i 2>/dev/null | grep --color -q -i -e "$@" && 
+        [[ ! -d "$i" ]] && new_paths+=("$i")
+done
+mode=binary
+for i in "${new_paths[@]}"
+    do
+        grep --color -n -i --binary-files=$mode "$@" "$i" |& grep -q -v "Binary file $i matches" && 
         printf -- "---------------START--------------- $i:\n" &&
-        cat -n $i 2>/dev/null | grep --color -i -e "$@" &&
+        grep --color -n -i --binary-files=$mode "$@" "$i" &&
         printf -- "----------------END---------------- $i\n"
 done
